@@ -5,7 +5,7 @@ Python 관리 스크립트를 두는 곳이에요. 웹앱과는 따로, **PM 컴
 | 파일 | 하는 일 | 상태 |
 | --- | --- | --- |
 | `seed_cafes.py` | 공공데이터 CSV에서 동작구·관악구 카페만 골라 Firestore `cafes`에 넣기 | 준비됨 |
-| `reset_demo.py` | 데모 계정 2개·데모 카페(카페 온기)를 시연 시작 상태로 되돌리기 | 예정 |
+| `reset_demo.py` | 데모 계정 2개·데모 카페(카페 온기)를 시연 시작 상태로 되돌리기 | 준비됨 |
 
 ## 처음 한 번만 (Python 환경 만들기)
 
@@ -41,3 +41,13 @@ scripts/.venv/Scripts/python scripts/seed_cafes.py --write     # 3) Firestore에
 - 범위를 좁힌 이유: 지도 화면을 한 번 열 때마다 카페 수만큼 Firestore 읽기가 쓰이고, 무료 한도는 하루 5만 회.
   (동작구·관악구 전체 1,328곳이면 하루 약 37번 열면 한도 초과)
 - 넓히려면 `--radius-km 2` 처럼 조절, `--radius-km 0`이면 두 구 전체.
+
+## 데모 초기화 (시연 전에 꼭!)
+
+```bash
+scripts/.venv/Scripts/python scripts/reset_demo.py
+```
+
+- 데모 계정: `mock_owner@demo.com`(사장), `mock_customer@demo.com`(고객). 비밀번호는 `.env`의 `VITE_DEMO_OWNER_PASSWORD`, `VITE_DEMO_CUSTOMER_PASSWORD`
+- 데모 카페: **카페 온기** (`cafes/demo_ongi`, 중앙대 310관 8층) → 혼잡 · 좌석 2/30 · 샘플 리뷰 3개 상태로 되돌림
+- 카페 온기의 리뷰·리뷰 제한·혼잡도 평가·구독을 모두 비우고 다시 시작해요. 공공데이터 카페는 건드리지 않아요.
