@@ -1,0 +1,38 @@
+# ── 비밀 정보 (절대 GitHub에 올리지 않기!) ──
+.env
+.env.*
+!.env.example
+# Firebase 서비스 계정 키 (scripts/에서 쓰는 관리자 키)
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
+
+# ── 자동으로 생기는 폴더 ──
+node_modules
+dist
+dist-ssr
+*.local
+.firebase/
+
+# ── Python (scripts/) ──
+__pycache__/
+*.pyc
+.venv/
+venv/
+# 공공데이터 원본 CSV는 용량이 커서 올리지 않음
+scripts/data/
+
+# ── 로그 ──
+logs
+*.log
+npm-debug.log*
+firebase-debug.log*
+firestore-debug.log*
+
+# ── 에디터·OS ──
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.sw?

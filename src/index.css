@@ -1,0 +1,84 @@
+/*
+  전체 기본 스타일 + 폰 폭 레이아웃 — 담당: 공통
+  색·글꼴 같은 디자인 값(테마)과 공통 부품 스타일은 프런트 B가 src/styles/theme.css에 만들 예정이에요.
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  color: #1f1a17;
+  /* PC에서 폰 화면 바깥에 보이는 배경 */
+  background: #e9e4de;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+  폰 폭 틀: 폰에서는 화면 전체, PC에서는 가운데에 폭 430px로 보여요.
+  모든 화면은 이 틀 안에 그려져요. (App.jsx의 <div className="app-shell">)
+*/
+.app-shell {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  min-height: 100dvh; /* 모바일 주소창 높이를 뺀 실제 화면 높이 */
+  margin: 0 auto;
+  background: #f6f3ef;
+  overflow-x: hidden;
+}
+
+/* PC처럼 화면이 넓을 때만 폰 화면에 그림자를 줘서 구분 */
+@media (min-width: 431px) {
+  .app-shell {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* ── 임시: "준비 중" 페이지 모양 (각 담당자가 실제 화면을 만들면 안 쓰게 됨) ── */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 48px 24px;
+}
+
+.placeholder h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #5b3a29;
+}
+
+.placeholder .meta {
+  margin: 0;
+  font-size: 13px;
+  color: #6e655e;
+}
+
+.placeholder nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.placeholder nav a {
+  padding: 8px 12px;
+  border: 1px solid #e6e0d9;
+  border-radius: 999px;
+  background: #fff;
+  color: #5b3a29;
+  font-size: 13px;
+  text-decoration: none;
+}
