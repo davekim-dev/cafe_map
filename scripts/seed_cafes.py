@@ -19,6 +19,7 @@
 import argparse
 import csv
 import glob
+import math
 import os
 import sys
 
@@ -31,7 +32,16 @@ SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPTS_DIR, "data")
 
 TARGET_DISTRICTS = {"동작구", "관악구"}
-CAFE_CATEGORY_KEYWORDS = ("카페",)  # 소분류명에 이 글자가 들어가면 카페로 봄
+
+# 중앙대 정문 근처 좌표 (웹앱 src/services/kakaoLoader.js 의 CAU_CENTER와 같은 값)
+CAU_CENTER = (37.5051, 126.9571)
+# 기본 반경 1.5km (약 220곳). Firestore 무료 읽기 한도(하루 5만 회) 때문에 범위를 좁힘.
+# 지도 화면을 한 번 열 때마다 카페 수만큼 읽기가 쓰이므로, 넓히려면 --radius-km 로 조절.
+DEFAULT_RADIUS_KM = 1.5
+# 소분류명이 정확히 "카페"인 가게만 (← "독서실/스터디 카페"는 제외)
+CAFE_CATEGORIES = {"카페"}
+# 소분류는 카페지만 실제로는 카페가 아닌 것 (표준산업분류명 기준)
+EXCLUDE_INDUSTRIES = {"자동 판매기 운영업"}
 
 # 공공데이터 CSV 컬럼 이름 (연도마다 조금씩 달라서 후보를 여러 개 둠)
 COLS = {
@@ -39,6 +49,7 @@ COLS = {
     "name": ["상호명"],
     "branch": ["지점명"],
     "category": ["상권업종소분류명", "소분류명"],
+    "industry": ["표준산업분류명"],
     "district": ["시군구명"],
     "road_addr": ["도로명주소"],
     "jibun_addr": ["지번주소"],
@@ -106,7 +117,16 @@ def inspect(path):
             print("  ", dict(zip(header, row)))
 
 
-def load_cafes(path):
+def distance_km(lat1, lng1, lat2, lng2):
+    """두 좌표 사이 거리(km). 지구를 구로 보고 계산."""
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def load_cafes(path, radius_km):
     f, enc = open_csv(path)
     cafes = []
     with f:
@@ -116,12 +136,16 @@ def load_cafes(path):
             if row[c["district"]].strip() not in TARGET_DISTRICTS:
                 continue
             category = row[c["category"]].strip()
-            if not any(k in category for k in CAFE_CATEGORY_KEYWORDS):
+            if category not in CAFE_CATEGORIES:
+                continue
+            if c["industry"] and row[c["industry"]].strip() in EXCLUDE_INDUSTRIES:
                 continue
             try:
                 lat, lng = float(row[c["lat"]]), float(row[c["lng"]])
             except ValueError:
                 continue  # 좌표가 없는 가게는 지도에 못 그리니 제외
+            if radius_km and distance_km(lat, lng, *CAU_CENTER) > radius_km:
+                continue
             name = row[c["name"]].strip()
             branch = row[c["branch"]].strip() if c["branch"] else ""
             if branch and branch not in name:
@@ -205,6 +229,12 @@ def main():
     p.add_argument("--key", help="서비스 계정 키 json 경로 (기본: scripts/ 안에서 찾음)")
     p.add_argument("--inspect", action="store_true", help="CSV 컬럼과 처음 5줄만 보여주기")
     p.add_argument("--write", action="store_true", help="실제로 Firestore에 저장 (없으면 미리 보기만)")
+    p.add_argument(
+        "--radius-km",
+        type=float,
+        default=DEFAULT_RADIUS_KM,
+        help=f"중앙대에서 이 거리(km) 안의 카페만 (기본 {DEFAULT_RADIUS_KM}, 0이면 동작구·관악구 전체)",
+    )
     args = p.parse_args()
 
     csv_path = find_csv(args.csv)
@@ -212,11 +242,12 @@ def main():
         inspect(csv_path)
         return
 
-    cafes = load_cafes(csv_path)
+    cafes = load_cafes(csv_path, args.radius_km)
     by_district = {}
     for c in cafes:
         by_district[c["district"]] = by_district.get(c["district"], 0) + 1
-    print(f"대상 카페 {len(cafes)}곳: " + ", ".join(f"{d} {n}곳" for d, n in sorted(by_district.items())))
+    scope = f"중앙대 반경 {args.radius_km}km" if args.radius_km else "동작구·관악구 전체"
+    print(f"[{scope}] 대상 카페 {len(cafes)}곳: " + ", ".join(f"{d} {n}곳" for d, n in sorted(by_district.items())))
     for c in cafes[:5]:
         print(f"  예) {c['name']} | {c['category']} | {c['address']} | ({c['lat']}, {c['lng']})")
 
