@@ -11,6 +11,7 @@ import OwnerHomePage from './pages/owner/OwnerHomePage.jsx'
 import OwnerEditPage from './pages/owner/OwnerEditPage.jsx'
 import OwnerReviewsPage from './pages/owner/OwnerReviewsPage.jsx'
 import OwnerPreviewPage from './pages/owner/OwnerPreviewPage.jsx'
+import DevMapTest from './pages/DevMapTest.jsx'
 
 export default function App() {
   return (
@@ -30,6 +31,9 @@ export default function App() {
         <Route path="/owner/edit" element={<OwnerEditPage />} />
         <Route path="/owner/reviews" element={<OwnerReviewsPage />} />
         <Route path="/owner/preview" element={<OwnerPreviewPage />} />
+
+        {/* 개발용 테스트 (공통): 카카오 키·도메인 설정 확인 */}
+        <Route path="/dev/map" element={<DevMapTest />} />
 
         {/* 없는 주소로 들어오면 시작 화면으로 */}
         <Route path="*" element={<Navigate to="/" replace />} />
