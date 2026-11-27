@@ -13,7 +13,7 @@
   2) users/{uid} 문서의 role(owner/customer)·닉네임·ownedCafeId 를 맞춤
   3) 가상 카페 "카페 온기"(cafes/demo_ongi, 중앙대 310관 8층)를
      혼잡 · 좌석 2/30 · 기본 안내로 되돌림 (없으면 만듦)
-  4) 카페 온기의 reviews · reviewLocks · crowdVotes · subscribers 를 비우고 샘플 리뷰 3개를 넣음
+  4) 카페 온기의 reviews · reviewLocks · subscribers 를 비우고 샘플 리뷰 3개를 넣음
 
 ※ 공공데이터 카페(sbiz_...)와 다른 데이터는 건드리지 않아요.
 """
@@ -37,26 +37,26 @@ CUSTOMER_EMAIL = "mock_customer@demo.com"
 # 카페 온기 위치: 중앙대학교 310관 (카카오 장소 검색 좌표)
 ONGI_LAT, ONGI_LNG = 37.5038217213134, 126.955870181663
 
-# 샘플 리뷰 (키워드 목록은 팀 논의 6번에서 확정 예정 → 확정되면 여기도 맞추기)
+# 샘플 리뷰 (키워드는 src/constants/keywords.js 목록과 같아야 해요)
 SAMPLE_REVIEWS = [
     {
         "uid": "sample_user_1",
         "nickname": "경영학과 23",
-        "keywords": ["분좋카", "공부하기 좋아요"],
+        "keywords": ["카공", "조용", "콘센트 유무"],
         "text": "310관 8층이라 수업 끝나고 바로 오기 좋아요. 창가 자리 뷰가 최고!",
         "hours_ago": 26,
     },
     {
         "uid": "sample_user_2",
         "nickname": "시험기간 생존자",
-        "keywords": ["콘센트 많아요", "공부하기 좋아요"],
+        "keywords": ["카공", "콘센트 유무", "편한 의자"],
         "text": "자리마다 콘센트가 있어서 노트북 들고 오래 있기 편해요.",
         "hours_ago": 50,
     },
     {
         "uid": "sample_user_3",
         "nickname": "라떼 러버",
-        "keywords": ["커피가 맛있어요", "분좋카"],
+        "keywords": ["커피", "디저트", "데이트"],
         "text": "라떼가 고소하고 사장님이 친절하세요. 점심 직후엔 자리가 꽉 차요.",
         "hours_ago": 74,
     },
@@ -156,7 +156,6 @@ def main():
             "district": "동작구",
             "kakaoPlaceId": None,
             "hours": "평일 08:00–22:00 · 주말 10:00–20:00",
-            "filters": {"study": True, "outlets": True},
             "ownerUid": owner_uid,
             "isPartner": True,
             "intro": {
@@ -175,7 +174,7 @@ def main():
     print("  혼잡 · 좌석 2/30 · 노출 중 · 사장 연결 완료")
 
     print("4) 카페 온기 하위 데이터 초기화")
-    for sub in ("reviews", "reviewLocks", "crowdVotes", "subscribers"):
+    for sub in ("reviews", "reviewLocks", "subscribers"):
         n = clear_collection(cafe_ref.collection(sub))
         print(f"  {sub}: {n}개 삭제")
     for r in SAMPLE_REVIEWS:

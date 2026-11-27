@@ -9,6 +9,7 @@ import { loadKakaoMap, CAU_CENTER } from '../services/kakaoLoader.js'
 import { useCafes } from '../services/cafes.js'
 import { getDisplayStatus } from '../services/displayStatus.js'
 import { getPlaceInfo } from '../services/kakaoPlaces.js'
+import { topKeywords } from '../constants/keywords.js'
 
 /** 점을 눌렀을 때 아래에 뜨는 카페 정보 카드 (개발 확인용) */
 function CafeInfoCard({ cafe, onClose }) {
@@ -53,6 +54,7 @@ function CafeInfoCard({ cafe, onClose }) {
           </div>
           <div style={{ color: '#6E655E' }}>{cafe.address}</div>
           {cafe.hours && <div style={{ color: '#6E655E' }}>영업시간 {cafe.hours}</div>}
+          <div>파워 키워드 {topKeywords(cafe).map((k) => `#${k.keyword}(${k.count})`).join(' ') || '없음'}</div>
           {cafe.intro?.description && <div style={{ marginTop: 4 }}>{cafe.intro.description}</div>}
         </>
       ) : (
@@ -118,15 +120,17 @@ export default function DevMapTest() {
     for (const cafe of cafes) {
       const status = getDisplayStatus(cafe)
       const big = cafe.isPartner === true
-      const size = big ? 18 : 12
+      const size = big ? 30 : 12
       const position = new kakao.maps.LatLng(cafe.lat, cafe.lng)
 
+      // 미가입 카페 = 작은 회색 원, 가입 카페 = 혼잡도 색 동그라미 안에 ☕ 이모지 (회의 결정 보충 8번)
       const dot = document.createElement('div')
       dot.className = 'dev-cafe-dot'
       dot.dataset.cafeId = cafe.id
       dot.dataset.statusKey = status.key
       dot.title = cafe.name
-      dot.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${status.color};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer;`
+      if (big) dot.textContent = '☕'
+      dot.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${status.color};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;`
       dot.addEventListener('click', () => setSelectedId(cafe.id))
       overlaysRef.current.push(
         new kakao.maps.CustomOverlay({ map, position, content: dot, zIndex: big ? 10 : 1, clickable: true }),
@@ -139,7 +143,7 @@ export default function DevMapTest() {
           'padding:3px 8px;border-radius:999px;background:#fff;color:#1F1A17;font-size:12px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.25);white-space:nowrap;cursor:pointer;'
         label.addEventListener('click', () => setSelectedId(cafe.id))
         overlaysRef.current.push(
-          new kakao.maps.CustomOverlay({ map, position, content: label, yAnchor: -0.8, zIndex: 11, clickable: true }),
+          new kakao.maps.CustomOverlay({ map, position, content: label, yAnchor: -1.1, zIndex: 11, clickable: true }),
         )
       }
     }
@@ -160,7 +164,7 @@ export default function DevMapTest() {
         <div id="map-status">{mapStatus}</div>
         <div id="data-status">{dataStatus}</div>
         <div style={{ color: '#6E655E', fontSize: 12 }}>
-          회색 점 = 미가입 카페 · 큰 색 점 = 가입 카페(색은 혼잡도) · <b>점을 누르면 정보가 떠요</b>
+          회색 점 = 미가입 카페 · ☕ = 가입 카페(동그라미 색은 혼잡도) · <b>점을 누르면 정보가 떠요</b>
         </div>
       </div>
       <div style={{ position: 'relative', flex: 1, minHeight: 300 }}>

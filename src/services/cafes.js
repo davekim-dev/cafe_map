@@ -18,7 +18,8 @@
 // ─ 돌려주는 카페 모양 ─────────────────────────────────────
 //   { id, name, lat, lng, address, category, isPartner, visibility, keywordCounts,
 //     status: { level: 'free'|'normal'|'busy', updatedAt: Date },
-//     seats:  { available, total, updatedAt: Date }, intro, filters, hours, ownerUid, ... }
+//     seats:  { available, total, updatedAt: Date }, intro, hours, ownerUid, ... }
+//   ※ 필터는 별도 필드 없이 keywordCounts로 해요(src/constants/keywords.js의 hasKeyword).
 //   ※ Firestore의 시간 값(Timestamp)은 보통 JavaScript Date로 바꿔서 줘요.
 //
 // ─ 읽기 비용 아끼기 ───────────────────────────────────────
