@@ -8,6 +8,7 @@
 - Firestore 컬렉션: users{role, nickname, ownedCafeId}, cafes{name, lat, lng, address, category, kakaoPlaceId, hours, filters{study, outlets}, ownerUid, isPartner, intro{beans, machine, description}, status{level, updatedAt}, seats{available, total, updatedAt}, visibility, keywordCounts, premium}, cafes/{id}/reviews, reviewLocks, crowdVotes, subscribers{createdAt, lastSeenAt}
 - 폴더: 화면은 src/pages·src/components, 데이터 함수는 src/services. 화면은 Firestore를 직접 부르지 말고 services 함수만 쓴다.
 - 카페 데이터: Firestore `cafes`에 공공데이터 카페 218곳(중앙대 반경 1.5km, 문서 ID `sbiz_...`, 모두 isPartner=false). 지도를 열 때마다 카페 수만큼 읽기가 쓰이므로(무료 하루 5만 회) 불필요한 중복 구독·반복 조회를 만들지 않는다.
+- 배포: Firebase Hosting **https://cafe-map-ffd8d.web.app** (QR: `docs/qr.png`). main 기준으로 PM만 `npm run build` → `firebase deploy --only hosting`. 팀원·AI는 배포 명령을 실행하지 않는다. 카카오 JS SDK 도메인에는 `http://localhost:5173`, `https://cafe-map-ffd8d.web.app`, `https://cafe-map-ffd8d.firebaseapp.com`만 등록되어 있다.
 - 레이아웃: 모바일 퍼스트. 모든 화면은 App.jsx의 `.app-shell`(최대 폭 430px, 가운데 정렬) 안에 그린다.
 
 ## 폴더별 담당 (다른 사람 폴더는 고치기 전에 그 사람에게 먼저 말하기)

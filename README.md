@@ -5,6 +5,21 @@
 - 기술: React + Vite, Firebase(Auth·Firestore·Hosting), 카카오맵 JavaScript SDK
 - 팀 규칙·폴더 담당·AI에게 줄 공통 머리말: [CLAUDE.md](CLAUDE.md)
 
+## 🌐 배포 주소 (폰으로 바로 열기)
+
+| | |
+| --- | --- |
+| <img src="docs/qr.png" alt="카페 여유지도 QR" width="180"> | **https://cafe-map-ffd8d.web.app**<br><br>- 지도·카페 데이터 확인: https://cafe-map-ffd8d.web.app/dev/map<br>- main에 합쳐진 코드를 PM이 배포한 버전이에요. 최신 PR이 아직 안 보이면 다음 배포를 기다려 주세요.<br>- 데이터(Firestore)는 개발 중인 `localhost`와 **같은 것**을 봐요. 시연 전에는 PM이 `scripts/reset_demo.py`로 초기화해요. |
+
+## 데모 계정
+
+시작 화면의 "손님으로 시작 / 사장님으로 시작" 버튼이 아래 계정으로 바로 로그인해요. (비밀번호는 `.env`에 있음)
+
+| 역할 | 이메일 | 연결된 카페 |
+| --- | --- | --- |
+| 사장 | `mock_owner@demo.com` | 카페 온기 (`cafes/demo_ongi`, 중앙대 310관 8층) |
+| 고객 | `mock_customer@demo.com` | — |
+
 ## 처음 한 번만 (내 컴퓨터에 받아오기)
 
 Git·Node.js 설치가 먼저 필요해요. (팀 공유 문서 "작업 환경 설정" 참고)
@@ -76,3 +91,19 @@ git push                                  # 내 브랜치(GitHub)에 올리기
 | `npm run dev` | 개발용 화면 띄우기 |
 | `npm run build` | 배포용 파일 만들기 (`dist/` 폴더) |
 | `npm run lint` | 코드 문법 검사 |
+
+## 배포 (PM만)
+
+`.env`와 Firebase 로그인이 필요해서 PM 컴퓨터에서만 해요. 항상 **main 최신 코드**로 배포해요.
+
+```bash
+git switch main
+git pull origin main
+npm install
+npm run build                    # dist 폴더(완성본) 만들기
+firebase deploy --only hosting   # dist를 https://cafe-map-ffd8d.web.app 에 올리기
+git switch back-common
+```
+
+- 화면·코드가 바뀌면 다시 배포해야 반영돼요. 데이터(혼잡도·좌석·리뷰)는 배포 없이 바로 반영돼요.
+- 새 배포 주소를 쓰게 되면 카카오 콘솔 JavaScript SDK 도메인에도 등록해야 지도가 떠요.
