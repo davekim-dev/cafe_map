@@ -2,10 +2,12 @@
 
 - 동작구·관악구 대학가 카페 지도. 사장님이 "여유/보통/혼잡"과 남은 좌석을 올리면 고객 지도에 실시간으로 보인다.
 - 기술: React + Vite 모바일 퍼스트 웹앱(PWA), Firebase(Auth, Firestore, Hosting), 카카오맵 JavaScript SDK. 별도 서버 없음.
-- 계정: 회원가입 없음. 데모 계정 2개(mock_owner, mock_customer)를 시작 화면 버튼으로 바로 로그인.
+- 계정: 회원가입 없음. 데모 계정 2개를 시작 화면 버튼으로 바로 로그인. 사장 `mock_owner@demo.com`(비밀번호 `.env`의 `VITE_DEMO_OWNER_PASSWORD`), 고객 `mock_customer@demo.com`(`VITE_DEMO_CUSTOMER_PASSWORD`). 계정·users 문서는 `scripts/reset_demo.py`가 만든다.
+- 데모 카페: "카페 온기" = `cafes/demo_ongi` (가상 카페, 중앙대 310관 8층, isPartner=true, mock_owner 소유). 시연 전 `reset_demo.py`로 혼잡·좌석 2/30·샘플 리뷰 3개 상태로 초기화.
 - 알림: 푸시 없음. 구독한 카페가 "여유"가 되면 고객 화면 안에 배너를 띄우고, 닫아 둔 사이 바뀐 건 다음 접속 때 "못 본 알림"으로 보여준다.
 - Firestore 컬렉션: users{role, nickname, ownedCafeId}, cafes{name, lat, lng, address, category, kakaoPlaceId, hours, filters{study, outlets}, ownerUid, isPartner, intro{beans, machine, description}, status{level, updatedAt}, seats{available, total, updatedAt}, visibility, keywordCounts, premium}, cafes/{id}/reviews, reviewLocks, crowdVotes, subscribers{createdAt, lastSeenAt}
 - 폴더: 화면은 src/pages·src/components, 데이터 함수는 src/services. 화면은 Firestore를 직접 부르지 말고 services 함수만 쓴다.
+- 카페 데이터: Firestore `cafes`에 공공데이터 카페 218곳(중앙대 반경 1.5km, 문서 ID `sbiz_...`, 모두 isPartner=false). 지도를 열 때마다 카페 수만큼 읽기가 쓰이므로(무료 하루 5만 회) 불필요한 중복 구독·반복 조회를 만들지 않는다.
 - 레이아웃: 모바일 퍼스트. 모든 화면은 App.jsx의 `.app-shell`(최대 폭 430px, 가운데 정렬) 안에 그린다.
 
 ## 폴더별 담당 (다른 사람 폴더는 고치기 전에 그 사람에게 먼저 말하기)
