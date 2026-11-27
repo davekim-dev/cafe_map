@@ -2,13 +2,13 @@
 
 - 동작구·관악구 대학가 카페 지도. 사장님이 "여유/보통/혼잡"과 남은 좌석을 올리면 고객 지도에 실시간으로 보인다.
 - 한 줄 정의: 고객은 니즈에 맞는 카페를 더 쾌적하게 이용하고, 사장님은 카페 수익률을 높인다. 돈은 사장님이 내는 B2B 모델이지만, 고객 풀이 넓어야 효과가 있어 고객도 앱 사용자에 포함된다.
-- 페르소나: 중앙대 반경 2km 안에서 생활하며 카페 문화를 즐기는 젊은 층(카공족, 친구·연인, 혼카족, 취준생, 디지털 노마드, 대학생).
+- 페르소나: 중앙대 반경 2km 안에서 생활하며 카페 문화를 즐기는 젊은 층(카공족, 친구·연인, 혼카족, 취준생, 디지털 노마드, 대학생). 페르소나만 2km이고 카페 데이터는 1.5km다.
 - 기술: React + Vite 모바일 퍼스트 웹앱(PWA), Firebase(Auth, Firestore, Hosting), 카카오맵 JavaScript SDK. 별도 서버 없음.
 - 계정: 회원가입 없음. 데모 계정 2개를 시작 화면 버튼으로 바로 로그인. 사장 `mock_owner@demo.com`(비밀번호 `.env`의 `VITE_DEMO_OWNER_PASSWORD`), 고객 `mock_customer@demo.com`(`VITE_DEMO_CUSTOMER_PASSWORD`). 계정·users 문서는 `scripts/reset_demo.py`가 만든다.
 - 데모 카페: "카페 온기" = `cafes/demo_ongi` (가상 카페, 중앙대 310관 8층, isPartner=true, mock_owner 소유). 시연 전 `reset_demo.py`로 혼잡·좌석 2/30·샘플 리뷰 3개 상태로 초기화.
 - 혼잡도: **사장님만 설정**(고객 혼잡도 평가 없음, `crowdVotes`·`votes.js` 없음). 시간이 지나도 혼잡도를 지우지 않고 "n분(m시간) 지난 평가입니다"를 붙인다: 15분 미만 "방금 업데이트한 평가입니다" → 15분 → 30분 → 1시간 → 2시간 → 3시간, 3시간 초과도 "3시간 지난 평가입니다". 규칙은 `src/services/displayStatus.js`의 `getDisplayStatus()` 하나로만 계산한다.
 - 파워 키워드 = 필터 목록(`src/constants/keywords.js`): 음식(커피, 디저트, 다양성) · 분위기(카공, 얘기, 조용, 데이트) · 편의성(화장실, 콘센트 유무, 편한 의자). 고객이 리뷰에서 고르면 `keywordCounts`에 쌓이고, 지도 필터는 그 키워드를 한 번 이상 받은 카페만 보여준다. 별도 `filters` 필드는 없다.
-- 지도 마커: 미가입 카페는 작은 회색 원, 가입 카페는 혼잡도 색 동그라미 안에 ☕(커피컵)·🫘(커피콩) 같은 이모지.
+- 지도 마커: 미가입 카페는 작은 회색 원, 가입 카페(지금은 카페 온기 하나)는 혼잡도 색 동그라미 안에 ☕(커피잔) 이모지. 다른 이모지는 쓰지 않는다.
 - 리뷰: 로그인한 고객은 같은 카페에 24시간에 리뷰 1개만(`reviewLocks`).
 - 알림: 푸시 없음. 구독한 카페가 "여유"가 되면 고객 화면 안에 배너를 띄우고, 닫아 둔 사이 바뀐 건 다음 접속 때 "못 본 알림"으로 보여준다.
 - Firestore 컬렉션: users{role, nickname, ownedCafeId}, cafes{name, lat, lng, address, category, kakaoPlaceId, hours, ownerUid, isPartner, intro{beans, machine, description}, status{level, updatedAt}, seats{available, total, updatedAt}, visibility, keywordCounts, premium}, cafes/{id}/reviews, reviewLocks, subscribers{createdAt, lastSeenAt}
