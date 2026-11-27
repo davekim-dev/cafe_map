@@ -1,11 +1,17 @@
 # 프로젝트: 카페 여유지도 (학교 과제, 비개발자 팀의 바이브 코딩)
 
 - 동작구·관악구 대학가 카페 지도. 사장님이 "여유/보통/혼잡"과 남은 좌석을 올리면 고객 지도에 실시간으로 보인다.
+- 한 줄 정의: 고객은 니즈에 맞는 카페를 더 쾌적하게 이용하고, 사장님은 카페 수익률을 높인다. 돈은 사장님이 내는 B2B 모델이지만, 고객 풀이 넓어야 효과가 있어 고객도 앱 사용자에 포함된다.
+- 페르소나: 중앙대 반경 2km 안에서 생활하며 카페 문화를 즐기는 젊은 층(카공족, 친구·연인, 혼카족, 취준생, 디지털 노마드, 대학생).
 - 기술: React + Vite 모바일 퍼스트 웹앱(PWA), Firebase(Auth, Firestore, Hosting), 카카오맵 JavaScript SDK. 별도 서버 없음.
 - 계정: 회원가입 없음. 데모 계정 2개를 시작 화면 버튼으로 바로 로그인. 사장 `mock_owner@demo.com`(비밀번호 `.env`의 `VITE_DEMO_OWNER_PASSWORD`), 고객 `mock_customer@demo.com`(`VITE_DEMO_CUSTOMER_PASSWORD`). 계정·users 문서는 `scripts/reset_demo.py`가 만든다.
 - 데모 카페: "카페 온기" = `cafes/demo_ongi` (가상 카페, 중앙대 310관 8층, isPartner=true, mock_owner 소유). 시연 전 `reset_demo.py`로 혼잡·좌석 2/30·샘플 리뷰 3개 상태로 초기화.
+- 혼잡도: **사장님만 설정**(고객 혼잡도 평가 없음, `crowdVotes`·`votes.js` 없음). 시간이 지나도 혼잡도를 지우지 않고 "n분(m시간) 지난 평가입니다"를 붙인다: 15분 미만 "방금 업데이트한 평가입니다" → 15분 → 30분 → 1시간 → 2시간 → 3시간, 3시간 초과도 "3시간 지난 평가입니다". 규칙은 `src/services/displayStatus.js`의 `getDisplayStatus()` 하나로만 계산한다.
+- 파워 키워드 = 필터 목록(`src/constants/keywords.js`): 음식(커피, 디저트, 다양성) · 분위기(카공, 얘기, 조용, 데이트) · 편의성(화장실, 콘센트 유무, 편한 의자). 고객이 리뷰에서 고르면 `keywordCounts`에 쌓이고, 지도 필터는 그 키워드를 한 번 이상 받은 카페만 보여준다. 별도 `filters` 필드는 없다.
+- 지도 마커: 미가입 카페는 작은 회색 원, 가입 카페는 혼잡도 색 동그라미 안에 ☕(커피컵)·🫘(커피콩) 같은 이모지.
+- 리뷰: 로그인한 고객은 같은 카페에 24시간에 리뷰 1개만(`reviewLocks`).
 - 알림: 푸시 없음. 구독한 카페가 "여유"가 되면 고객 화면 안에 배너를 띄우고, 닫아 둔 사이 바뀐 건 다음 접속 때 "못 본 알림"으로 보여준다.
-- Firestore 컬렉션: users{role, nickname, ownedCafeId}, cafes{name, lat, lng, address, category, kakaoPlaceId, hours, filters{study, outlets}, ownerUid, isPartner, intro{beans, machine, description}, status{level, updatedAt}, seats{available, total, updatedAt}, visibility, keywordCounts, premium}, cafes/{id}/reviews, reviewLocks, crowdVotes, subscribers{createdAt, lastSeenAt}
+- Firestore 컬렉션: users{role, nickname, ownedCafeId}, cafes{name, lat, lng, address, category, kakaoPlaceId, hours, ownerUid, isPartner, intro{beans, machine, description}, status{level, updatedAt}, seats{available, total, updatedAt}, visibility, keywordCounts, premium}, cafes/{id}/reviews, reviewLocks, subscribers{createdAt, lastSeenAt}
 - 폴더: 화면은 src/pages·src/components, 데이터 함수는 src/services. 화면은 Firestore를 직접 부르지 말고 services 함수만 쓴다.
 - 카페 데이터: Firestore `cafes`에 공공데이터 카페 218곳(중앙대 반경 1.5km, 문서 ID `sbiz_...`, 모두 isPartner=false). 지도를 열 때마다 카페 수만큼 읽기가 쓰이므로(무료 하루 5만 회) 불필요한 중복 구독·반복 조회를 만들지 않는다.
 - 배포: Firebase Hosting **https://cafe-map-ffd8d.web.app** (QR: `docs/qr.png`). main 기준으로 PM만 `npm run build` → `firebase deploy --only hosting`. 팀원·AI는 배포 명령을 실행하지 않는다. 카카오 JS SDK 도메인에는 `http://localhost:5173`, `https://cafe-map-ffd8d.web.app`, `https://cafe-map-ffd8d.firebaseapp.com`만 등록되어 있다.
@@ -15,11 +21,11 @@
 
 | 경로 | 담당 |
 | --- | --- |
-| `index.html`, `src/main.jsx`, `src/index.css`, `src/firebase.js`, `scripts/`, 설정 파일(`package.json`, `vite.config.js` 등) | PM·백엔드 공통 |
-| `src/services/cafes.js`, `kakaoLoader.js`, `kakaoPlaces.js`, `displayStatus.js` | PM·백엔드 공통 |
-| `src/services/auth.js`, `owner.js`, `reviews.js`, `votes.js`, `alerts.js`, `firestore.rules` | 백엔드 계정 |
-| `src/pages/customer/`, `src/components/customer/`, `src/mocks/` | 프런트 A (고객 화면) |
-| `src/pages/owner/`, `src/pages/StartPage.jsx`, `src/components/common/`, `src/App.jsx`, `public/manifest.json` | 프런트 B (사장 화면 + 공통 UI) |
+| `index.html`, `src/main.jsx`, `src/index.css`, `src/firebase.js`, `scripts/`, 설정 파일(`package.json`, `vite.config.js` 등) | PM·백엔드 공통 (김성훈) |
+| `src/services/cafes.js`, `kakaoLoader.js`, `kakaoPlaces.js`, `displayStatus.js`, `src/constants/` | PM·백엔드 공통 (김성훈) |
+| `src/services/auth.js`, `owner.js`, `reviews.js`, `alerts.js`, `firestore.rules` | 백엔드 계정 (김유경) |
+| `src/pages/customer/`, `src/components/customer/`, `src/mocks/` | 프런트 A — 고객 화면 (이수민) |
+| `src/pages/owner/`, `src/pages/StartPage.jsx`, `src/components/common/`, `src/App.jsx`, `public/manifest.json` | 프런트 B — 사장 화면 + 공통 UI (김민우) |
 
 ## 경로
 

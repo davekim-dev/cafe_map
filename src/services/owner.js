@@ -3,7 +3,7 @@
 // 만들 함수 (이름은 1주차 회의에서 확정):
 //   - setCafeStatus(cafeId, level)
 //   - changeSeats(cafeId, delta)
-//   - updateCafeIntro(cafeId, {...})
+//   - updateCafeIntro(cafeId, { beans, machine, description, hours, totalSeats })
 //   - setVisibility(cafeId, isVisible)
 //   - getSubscriberCount(cafeId)
 //   - replyToReview(cafeId, reviewId, text)
